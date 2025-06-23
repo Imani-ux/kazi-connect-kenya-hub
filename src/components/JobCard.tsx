@@ -1,103 +1,116 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, DollarSign, Users } from 'lucide-react';
+import { MapPin, Calendar, Building, DollarSign, Users } from 'lucide-react';
 import { Job } from '@/types';
-import { Link } from 'react-router-dom';
 
 interface JobCardProps {
   job: Job;
-  showApplyButton?: boolean;
 }
 
-const JobCard = ({ job, showApplyButton = true }: JobCardProps) => {
+const JobCard = ({ job }: JobCardProps) => {
   const formatSalary = (salary: Job['salary']) => {
     return `${salary.currency} ${salary.min.toLocaleString()} - ${salary.max.toLocaleString()}`;
   };
 
-  const getTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
-    } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays}d ago`;
+  const getJobTypeColor = (type: Job['type']) => {
+    switch (type) {
+      case 'full-time':
+        return 'bg-green-100 text-green-800';
+      case 'part-time':
+        return 'bg-blue-100 text-blue-800';
+      case 'contract':
+        return 'bg-orange-100 text-orange-800';
+      case 'freelance':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-green-500">
-      <CardHeader className="pb-3">
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+      <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <Link to={`/jobs/${job.id}`} className="hover:text-green-600 transition-colors">
-              <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
+          <div className="flex-1">
+            <CardTitle className="text-lg font-semibold text-gray-900 mb-2 hover:text-green-600 transition-colors">
+              <Link to={`/jobs/${job.id}`}>
                 {job.title}
-              </h3>
-            </Link>
-            <p className="text-blue-600 font-medium">{job.company}</p>
+              </Link>
+            </CardTitle>
+            <div className="flex items-center text-gray-600 mb-2">
+              <Building className="w-4 h-4 mr-2" />
+              <span className="font-medium">{job.company}</span>
+            </div>
+            <div className="flex items-center text-gray-500 text-sm">
+              <MapPin className="w-4 h-4 mr-2" />
+              <span>{job.location}</span>
+            </div>
           </div>
-          <Badge variant={job.type === 'full-time' ? 'default' : 'secondary'}>
-            {job.type.replace('-', ' ')}
+          <Badge className={getJobTypeColor(job.type)}>
+            {job.type.charAt(0).toUpperCase() + job.type.slice(1)}
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <MapPin className="w-4 h-4" />
-            {job.location}
+        {/* Salary and Category */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center text-green-600">
+            <DollarSign className="w-4 h-4 mr-1" />
+            <span className="font-semibold">{formatSalary(job.salary)}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4" />
-            {formatSalary(job.salary)}
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            {getTimeAgo(job.postedAt)}
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            {job.applicationsCount} applicants
-          </div>
+          <Badge variant="outline">{job.category}</Badge>
         </div>
 
-        <p className="text-gray-700 text-sm line-clamp-2">
+        {/* Job Description */}
+        <p className="text-gray-600 text-sm line-clamp-2">
           {job.description}
         </p>
 
-        <div className="flex flex-wrap gap-2">
-          {job.skills.slice(0, 4).map((skill, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
+        {/* Skills */}
+        <div className="flex flex-wrap gap-1">
+          {job.skills.slice(0, 3).map((skill, index) => (
+            <Badge key={index} variant="secondary" className="text-xs">
               {skill}
             </Badge>
           ))}
-          {job.skills.length > 4 && (
-            <Badge variant="outline" className="text-xs">
-              +{job.skills.length - 4} more
+          {job.skills.length > 3 && (
+            <Badge variant="secondary" className="text-xs">
+              +{job.skills.length - 3} more
             </Badge>
           )}
         </div>
 
-        {showApplyButton && (
-          <div className="flex gap-2 pt-2">
-            <Button asChild className="flex-1 bg-green-600 hover:bg-green-700">
-              <Link to={`/jobs/${job.id}/apply`}>
-                Apply Now
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to={`/jobs/${job.id}`}>
-                View Details
-              </Link>
-            </Button>
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2 border-t">
+          <div className="flex items-center text-gray-500 text-xs space-x-4">
+            <div className="flex items-center">
+              <Calendar className="w-3 h-3 mr-1" />
+              <span>Posted {formatDate(job.postedAt)}</span>
+            </div>
+            <div className="flex items-center">
+              <Users className="w-3 h-3 mr-1" />
+              <span>{job.applicationsCount} applicants</span>
+            </div>
           </div>
-        )}
+          <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
+            <Link to={`/jobs/${job.id}`}>
+              View Details
+            </Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

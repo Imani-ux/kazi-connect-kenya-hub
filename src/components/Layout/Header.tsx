@@ -1,19 +1,12 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuSeparator 
-} from '@/components/ui/dropdown-menu';
-import { Bell, MessageSquare, User, LogOut, Settings, Briefcase } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Briefcase, User, LogOut, Settings } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
-import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -21,115 +14,94 @@ const Header = () => {
 
   const handleLogout = () => {
     AuthService.logout();
-    navigate('/login');
-  };
-
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account.",
+    });
+    navigate('/');
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">Kazika</span>
-              <Badge variant="secondary" className="text-xs">Kenya</Badge>
-            </Link>
-            
-            {currentUser && (
-              <nav className="hidden md:flex space-x-6">
-                <Link to="/jobs" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                  Jobs
-                </Link>
-                {currentUser.role === 'employer' && (
-                  <Link to="/post-job" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                    Post Job
-                  </Link>
-                )}
-                <Link to="/applications" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                  Applications
-                </Link>
-                <Link to="/messages" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                  Messages
-                </Link>
-                {currentUser.role === 'admin' && (
-                  <Link to="/admin" className="text-gray-700 hover:text-green-600 font-medium transition-colors">
-                    Admin
-                  </Link>
-                )}
-              </nav>
-            )}
-          </div>
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">Kazika</span>
+          </Link>
 
+          {/* Navigation */}
+          <nav className="hidden md:flex space-x-8">
+            <Link to="/" className="text-gray-700 hover:text-green-600 font-medium">
+              Home
+            </Link>
+            <Link to="/jobs" className="text-gray-700 hover:text-green-600 font-medium">
+              Browse Jobs
+            </Link>
+            {currentUser?.role === 'employer' && (
+              <Link to="/post-job" className="text-gray-700 hover:text-green-600 font-medium">
+                Post Jobs
+              </Link>
+            )}
+            {currentUser?.role === 'admin' && (
+              <Link to="/admin" className="text-gray-700 hover:text-green-600 font-medium">
+                Admin Panel
+              </Link>
+            )}
+          </nav>
+
+          {/* User Actions */}
           <div className="flex items-center space-x-4">
             {currentUser ? (
-              <>
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs p-0 bg-red-500">
-                    3
-                  </Badge>
-                </Button>
-                
-                <Button variant="ghost" size="sm" className="relative">
-                  <MessageSquare className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs p-0 bg-blue-500">
-                    2
-                  </Badge>
-                </Button>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={currentUser.profile?.avatar} />
-                        <AvatarFallback className="bg-green-600 text-white">
-                          {getInitials(currentUser.profile?.fullName || currentUser.username)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end">
-                    <div className="flex items-center justify-start gap-2 p-2">
-                      <div className="flex flex-col space-y-1 leading-none">
-                        <p className="font-medium">{currentUser.profile?.fullName || currentUser.username}</p>
-                        <p className="w-[200px] truncate text-sm text-muted-foreground">
-                          {currentUser.email}
-                        </p>
-                      </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={currentUser.profile?.avatar} alt={currentUser.username} />
+                      <AvatarFallback>
+                        {currentUser.profile?.fullName?.charAt(0) || currentUser.username.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-white" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{currentUser.profile?.fullName || currentUser.username}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {currentUser.email}
+                      </p>
                     </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" asChild>
-                  <Link to="/login">Login</Link>
+                <Button variant="outline" asChild>
+                  <Link to="/login">Sign In</Link>
                 </Button>
-                <Button asChild className="bg-green-600 hover:bg-green-700">
+                <Button className="bg-green-600 hover:bg-green-700" asChild>
                   <Link to="/register">Sign Up</Link>
                 </Button>
               </div>
