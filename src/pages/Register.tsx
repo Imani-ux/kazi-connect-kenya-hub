@@ -1,15 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Briefcase, Eye, EyeOff } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
-import { toast } from '@/hooks/use-toast';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -61,11 +53,7 @@ const Register = () => {
 
       AuthService.login(formData.username, formData.password);
       
-      toast({
-        title: "Registration successful!",
-        description: `Welcome to Kazika, ${formData.fullName}!`,
-      });
-      
+      alert(`Welcome to Kazika, ${formData.fullName}!`);
       navigate('/');
     } catch (err) {
       setError('An error occurred during registration');
@@ -75,145 +63,155 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="auth-container">
+      <div className="auth-card">
         {/* Logo */}
-        <div className="text-center">
-          <div className="inline-flex items-center space-x-2 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-gray-900">Kazika</span>
+        <div className="auth-header">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+            <div className="logo-icon">💼</div>
+            <span className="logo-text">Kazika</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-2">Join Kenya's premier job platform</p>
+          <h1 className="auth-title">Create Account</h1>
+          <p className="auth-subtitle">Join Kenya's premier job platform</p>
         </div>
 
         {/* Registration Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign Up</CardTitle>
-            <CardDescription>
-              Create your account to get started
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="alert alert-error">{error}</div>
+          )}
 
-              {/* Role Selection */}
-              <div className="space-y-3">
-                <Label>I am a:</Label>
-                <RadioGroup
-                  value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value as 'seeker' | 'employer' })}
-                  className="flex space-x-6"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="seeker" id="seeker" />
-                    <Label htmlFor="seeker">Job Seeker</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="employer" id="employer" />
-                    <Label htmlFor="employer">Employer</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  placeholder="Enter your full name"
-                  required
+          {/* Role Selection */}
+          <div className="form-group">
+            <label className="form-label">I am a:</label>
+            <div className="radio-group">
+              <div className="radio-option">
+                <input
+                  type="radio"
+                  id="seeker"
+                  name="role"
+                  value="seeker"
+                  checked={formData.role === 'seeker'}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as 'seeker' | 'employer' })}
+                  className="radio-input"
                 />
+                <label htmlFor="seeker">Job Seeker</label>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                  placeholder="Choose a username"
-                  required
+              <div className="radio-option">
+                <input
+                  type="radio"
+                  id="employer"
+                  name="role"
+                  value="employer"
+                  checked={formData.role === 'employer'}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as 'seeker'| 'employer' })}
+                  className="radio-input"
                 />
+                <label htmlFor="employer">Employer</label>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="Create a password"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  placeholder="Confirm your password"
-                  required
-                />
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full bg-green-600 hover:bg-green-700"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center text-sm">
-              <p className="text-gray-600">
-                Already have an account?{' '}
-                <Link to="/login" className="text-green-600 hover:text-green-500 font-medium">
-                  Sign in here
-                </Link>
-              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="fullName" className="form-label">Full Name</label>
+            <input
+              id="fullName"
+              type="text"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              placeholder="Enter your full name"
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="username" className="form-label">Username</label>
+            <input
+              id="username"
+              type="text"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              placeholder="Choose a username"
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="Enter your email"
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Create a password"
+                className="form-input"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              placeholder="Confirm your password"
+              className="form-input"
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn btn-primary"
+            style={{ width: '100%', marginBottom: '1rem' }}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating Account...' : 'Create Account'}
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', fontSize: '0.9rem' }}>
+          <p style={{ color: '#666' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: '#16a34a', textDecoration: 'none' }}>
+              Sign in here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

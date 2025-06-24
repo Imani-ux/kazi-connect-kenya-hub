@@ -1,26 +1,23 @@
-
 export interface User {
   id: string;
   username: string;
   email: string;
+  password?: string; // Optional for security - only used during registration
   role: 'seeker' | 'employer' | 'admin';
-  profile?: UserProfile;
+  profile: UserProfile;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface UserProfile {
   fullName: string;
+  avatar?: string;
   phone: string;
   location: string;
   bio: string;
-  avatar?: string;
   skills?: string[];
   experience?: string;
   education?: string;
-  portfolio?: string;
-  companyName?: string;
-  companySize?: string;
-  industry?: string;
 }
 
 export interface Job {
@@ -29,51 +26,28 @@ export interface Job {
   company: string;
   location: string;
   type: 'full-time' | 'part-time' | 'contract' | 'freelance';
+  category: string;
+  description: string;
+  requirements: string[];
+  skills: string[];
   salary: {
     min: number;
     max: number;
-    currency: 'KSH' | 'USD';
+    currency: string;
   };
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-  skills: string[];
-  category: string;
-  postedBy: string;
   postedAt: Date;
-  deadline: Date;
-  status: 'active' | 'closed' | 'draft';
+  expiresAt: Date;
   applicationsCount: number;
+  employerId: string;
+  isActive: boolean;
 }
 
 export interface Application {
   id: string;
   jobId: string;
-  applicantId: string;
-  status: 'pending' | 'reviewed' | 'interview' | 'rejected' | 'accepted';
+  seekerId: string;
+  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'hired';
   appliedAt: Date;
-  coverLetter: string;
+  coverLetter?: string;
   resume?: string;
-  notes?: string;
-}
-
-export interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  content: string;
-  timestamp: Date;
-  read: boolean;
-  jobId?: string;
-}
-
-export interface Review {
-  id: string;
-  reviewerId: string;
-  revieweeId: string;
-  jobId: string;
-  rating: number;
-  comment: string;
-  type: 'employer-review' | 'employee-review';
-  createdAt: Date;
 }
